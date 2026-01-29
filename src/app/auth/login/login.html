@@ -1,0 +1,18 @@
+<div style="width:300px;margin:100px auto;">
+  <h2>Login</h2>
+
+  <input type="email" placeholder="Email"
+         [(ngModel)]="loginData.email"><br><br>
+
+  <input type="password" placeholder="Password"
+         [(ngModel)]="loginData.password"><br><br>
+<div style="
+    display: flex;
+    justify-content: center;
+">
+  <button (click)="login()">Login</button>
+
+</div>
+
+  <p style="color:red">{{ errorMessage }}</p>
+</div>

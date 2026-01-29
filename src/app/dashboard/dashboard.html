@@ -1,0 +1,86 @@
+<div class="dashboard">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h2 class="logo">Dashboard</h2>
+    <ul>
+        <li (click)="navigateToDashboard()" class="active">Dashboard</li>
+        <li  (click)="navigateToTransactionList()">Transactions</li>
+        <li (click)="navigateToMachinesList()">Machines</li>
+        <li class="logout" (click)="logOut()">Logout</li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="main">
+
+    <!-- Navbar -->
+    <header class="navbar">
+      <h3>Dashboard</h3>
+      <div class="user">
+        <span>Welcome, Admin</span>
+      </div>
+    </header>
+
+    <!-- Cards -->
+    <div class="cards" *ngIf="this.transactionList==false">
+      <div class="card">
+        <h4>Total Users</h4>
+        <p>1,250</p>
+      </div>
+      <div class="card">
+        <h4>Total Orders</h4>
+        <p>820</p>
+      </div>
+      <div class="card">
+        <h4>Revenue</h4>
+        <p>₹95,000</p>
+      </div>
+      <div class="card">
+        <h4>Pending</h4>
+        <p>23</p>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="this.transactionList" class="table-section">
+      <h4>Recent Orders</h4>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>User</th>
+            <th>Status</th>
+            <th>Amount</th>
+            <th>Machine</th>
+
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Rahul</td>
+            <td class="success">Completed</td>
+            <td>₹1200</td>
+            <td>HP ScanJet Pro</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Anita</td>
+            <td class="pending">Pending</td>
+            <td>₹800</td>
+            <td>Epson WorkForce Scanner</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>John</td>
+            <td class="failed">Failed</td>
+            <td>₹500</td>
+            <td>Canon imageFORMULA</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
