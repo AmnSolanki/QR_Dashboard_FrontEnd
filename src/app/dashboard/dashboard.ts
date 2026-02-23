@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Transaction } from '../models/transaction.model';
+import { TransactionService } from '../transactions/transaction-service';
+import { AuthService } from '../auth/auth-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,31 +12,57 @@ import { Router } from '@angular/router';
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
-  transactionList=false;
+ transactionList = false;
+  transactions: Transaction[] = [];
+  loading = false;
+pageTitle = 'Dashboard';
+  constructor(
+    private router: Router,
+    private transactionService: TransactionService
+  ) {}
 
-  constructor(private router:Router) {}
   ngOnInit() {
-  this.transactionList=false;
+    this.navigateToDashboard();
+  }
+
+
+  navigateToDashboard() {
+    this.transactionList = false;
+    this.pageTitle = 'Dashboard';
+  }
+
+  navigateToTransactionList() {
+    this.transactionList = true;
+    this.loadTransactions();
+    this.pageTitle = 'Transactions';
+  }
+
+  navigateToMachinesList() {
+    this.transactionList = false;
+    this.pageTitle = 'Machines';
 
   }
 
-  logOut()
-  {
-    localStorage.removeItem('token');
+  loadTransactions() {
+    this.loading = true;
+
+    this.transactionService.getTransactions().subscribe({
+      next: (data) => {
+        this.transactions = data;
+        this.loading = false;
+        this.transactionList = true;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  logOut() {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token');
+    }
     this.router.navigate(['']);
-  }
-  navigateToTransactionList()
-  {
-    this.transactionList=true;
-  }
-  navigateToMachinesList()
-  {
-    this.transactionList=false;
-  }
-  navigateToDashboard()
-  {
-    this.transactionList=false;
-
   }
 
 }

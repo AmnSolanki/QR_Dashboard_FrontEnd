@@ -1,18 +1,24 @@
-<div style="width:300px;margin:100px auto;">
-  <h2>Login</h2>
+<div class="login-container">
+  <div class="login-card">
+    <h2>QR Payment Dashboard</h2>
+    <p class="subtitle">Admin Login</p>
 
-  <input type="email" placeholder="Email"
-         [(ngModel)]="loginData.email"><br><br>
+    <input
+      type="email"
+      placeholder="Email"
+      [(ngModel)]="email"
+    />
 
-  <input type="password" placeholder="Password"
-         [(ngModel)]="loginData.password"><br><br>
-<div style="
-    display: flex;
-    justify-content: center;
-">
-  <button (click)="login()">Login</button>
+    <input
+      type="password"
+      placeholder="Password"
+      [(ngModel)]="password"
+    />
 
-</div>
+    <button (click)="login()" [disabled]="loading">
+      {{ loading ? 'Logging in...' : 'Login' }}
+    </button>
 
-  <p style="color:red">{{ errorMessage }}</p>
+    <p class="error" *ngIf="error">{{ error }}</p>
+  </div>
 </div>

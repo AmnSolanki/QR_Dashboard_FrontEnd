@@ -1,41 +1,40 @@
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../auth-service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule,FormsModule],
+  standalone: true,
+  imports: [FormsModule,CommonModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
-  standalone: true
+  styleUrl: './login.css'
 })
-export class Login {
-loginData = {
-    email: '',
-    password: ''
-  };
+export class LoginComponent {
 
-  errorMessage = '';
+  email = '';
+  password = '';
+  loading = false;
+  error = '';
 
   constructor(
-    private http: HttpClient,
+    private auth: AuthService,
     private router: Router
   ) {}
 
   login() {
-    if (!this.loginData.email || !this.loginData.password) {
-      this.errorMessage = 'Email and Password required';
-      return;
-    }
+    this.loading = true;
+    this.error = '';
 
-    // TEMP login (no backend)
-    if (this.loginData.email === 'admin@test.com' && this.loginData.password === '1234') {
-      localStorage.setItem('token', 'dummy-token');
-      this.router.navigate(['dashboard']);
-    } else {
-      this.errorMessage = 'Invalid credentials';
-    }
+    this.auth.login(this.email, this.password).subscribe(res => {
+      if (res?.token) {
+        this.auth.saveToken(res.token);
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.error = 'Invalid email or password';
+      }
+      this.loading = false;
+    });
   }
 }
