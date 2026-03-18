@@ -22,87 +22,114 @@
       </div>
     </header>
 
-<div *ngIf="!transactionList">
+    <!-- DASHBOARD VIEW -->
+    <div *ngIf="!transactionList">
 
-  <p *ngIf="loading">Loading...</p>
+      <p *ngIf="loading">Loading...</p>
 
-  <p *ngIf="!loading && (!transactions || transactions.total_transactions === 0)">
-    No data available
-  </p>
+      <p *ngIf="!loading && (!transactions || transactions.total_transactions === 0)">
+        No data available
+      </p>
 
-  <div class="cards" *ngIf="!loading && transactions">
+      <div class="cards" *ngIf="!loading && transactions">
 
-    <mat-card class="card">
-      <h4>Total Transactions</h4>
-      <p>{{ transactions.total_transactions }}</p>
-    </mat-card>
+        <mat-card class="card">
+          <h4>Total Transactions</h4>
+          <p>{{ transactions.total_transactions }}</p>
+        </mat-card>
 
-    <mat-card class="card">
-      <h4>Total Revenue</h4>
-      <p>₹{{ transactions.total_amount }}</p>
-    </mat-card>
+        <mat-card class="card">
+          <h4>Total Revenue</h4>
+          <p>₹{{ transactions.total_amount }}</p>
+        </mat-card>
 
-  </div>
+      </div>
 
-</div>
+    </div>
 
-    <!-- TABLE -->
+    <!-- TABLE VIEW -->
     <div *ngIf="transactionList" class="table-section">
 
       <h3>QR Summary</h3>
 
-      <!--  SEARCH -->
-      <mat-form-field appearance="outline" >
-        <mat-label>Search</mat-label>
-        <input matInput (keyup)="applyFilter($event)" placeholder="Search QR ID">
+      <!-- SEARCH -->
+      <mat-form-field appearance="outline" class="search-box">
+        <mat-label>Search QR ID</mat-label>
+        <input
+          matInput
+          (keyup)="applyFilter($event)"
+          placeholder="Type to search..."
+        >
       </mat-form-field>
 
+      <!-- LOADING -->
       <p *ngIf="loading">Loading...</p>
 
-      <table mat-table [dataSource]="dataSource" *ngIf="!loading">
+      <!-- TABLE -->
+      <div class="table-container" *ngIf="!loading">
 
-        <!-- Index -->
-        <ng-container matColumnDef="index">
-          <th mat-header-cell *matHeaderCellDef>#</th>
-          <td mat-cell *matCellDef="let element; let i = index">
-            {{ i + 1 }}
-          </td>
-        </ng-container>
+        <table mat-table [dataSource]="dataSource" matSort>
 
-        <!-- QR ID -->
-        <ng-container matColumnDef="qr_id">
-          <th mat-header-cell *matHeaderCellDef>QR ID</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element.qr_id }}
-          </td>
-        </ng-container>
+          <!-- INDEX -->
+          <ng-container matColumnDef="index">
+            <th mat-header-cell *matHeaderCellDef sticky>#</th>
+            <td mat-cell *matCellDef="let row; let i = index">
+              {{ i + 1 }}
+            </td>
+          </ng-container>
 
-        <!-- Amount -->
-        <ng-container matColumnDef="amount">
-          <th mat-header-cell *matHeaderCellDef>Amount</th>
-          <td mat-cell *matCellDef="let element">
-            ₹{{ element.amount }}
-          </td>
-        </ng-container>
+          <!-- QR ID -->
+          <ng-container matColumnDef="qr_id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sticky>
+              QR ID
+            </th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.qr_id }}
+            </td>
+          </ng-container>
 
-        <!-- Transactions -->
-        <ng-container matColumnDef="transactions">
-          <th mat-header-cell *matHeaderCellDef>Total Txns</th>
-          <td mat-cell *matCellDef="let element">
-            {{ element.transactions }}
-          </td>
-        </ng-container>
+          <!-- AMOUNT -->
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sticky>
+              Amount
+            </th>
+            <td mat-cell *matCellDef="let row">
+              ₹{{ row.amount }}
+            </td>
+          </ng-container>
 
-        <!-- Rows -->
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          <!-- TRANSACTIONS -->
+          <ng-container matColumnDef="transactions">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header sticky>
+              Total Txns
+            </th>
+            <td mat-cell *matCellDef="let row">
+              {{ row.transactions }}
+            </td>
+          </ng-container>
 
-      </table>
+          <!-- HEADER -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 
-      <!--  PAGINATOR -->
+          <!-- ROWS -->
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+          <!-- NO DATA -->
+          <tr *ngIf="dataSource.data.length === 0">
+            <td colspan="4" class="no-data">
+              No matching records found
+            </td>
+          </tr>
+
+        </table>
+
+      </div>
+
+      <!-- PAGINATOR -->
       <mat-paginator
         [pageSize]="5"
-        [pageSizeOptions]="[5, 10, 20]">
+        [pageSizeOptions]="[5, 10, 20]"
+        showFirstLastButtons>
       </mat-paginator>
 
     </div>

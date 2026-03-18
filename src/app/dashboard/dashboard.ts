@@ -13,6 +13,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { firstValueFrom } from 'rxjs';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -25,7 +27,8 @@ import { firstValueFrom } from 'rxjs';
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    MatSortModule
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
@@ -36,13 +39,14 @@ export class Dashboard implements OnInit {
 
   dataSource = new MatTableDataSource<any>([]);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   transactionList = false;
   transactions: any ;
   loading = false;
   pageTitle = 'Dashboard';
 
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
   constructor(
     private router: Router,
     private transactionService: TransactionService,
@@ -50,6 +54,8 @@ export class Dashboard implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
     this.navigateToDashboard();
       }
 
@@ -82,11 +88,11 @@ async loadTransactions(): Promise<void> {
 
     // table binding
     this.dataSource.data = data.qr_summary || [];
+    this.paginator.length = data.qr_summary?.length || 0;
 
     setTimeout(() => {
-      if(this.pageTitle=="transactions"){
       this.dataSource.paginator = this.paginator;
-      }
+      
     });
 
   } catch (err) {
