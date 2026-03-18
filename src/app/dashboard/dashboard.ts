@@ -1,68 +1,111 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Transaction } from '../models/transaction.model';
 import { TransactionService } from '../transactions/transaction-service';
-import { AuthService } from '../auth/auth-service';
+
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCardModule
+  ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
 export class Dashboard implements OnInit {
- transactionList = false;
-  transactions: Transaction[] = [];
+
+  displayedColumns: string[] = ['index', 'qr_id', 'amount', 'transactions'];
+
+  dataSource = new MatTableDataSource<any>([]);
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+
+  transactionList = false;
+  transactions: any ;
   loading = false;
-pageTitle = 'Dashboard';
+  pageTitle = 'Dashboard';
+
   constructor(
     private router: Router,
-    private transactionService: TransactionService
+    private transactionService: TransactionService,
+    private cd:ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.navigateToDashboard();
-  }
+      }
 
-
-  navigateToDashboard() {
+  async navigateToDashboard() {
     this.transactionList = false;
     this.pageTitle = 'Dashboard';
+   await this.loadTransactions();
   }
 
   navigateToTransactionList() {
     this.transactionList = true;
-    this.loadTransactions();
     this.pageTitle = 'Transactions';
+    this.loadTransactions();
   }
 
   navigateToMachinesList() {
     this.transactionList = false;
     this.pageTitle = 'Machines';
-
   }
 
-  loadTransactions() {
-    this.loading = true;
+async loadTransactions(): Promise<void> {
+  this.loading = true;
 
-    this.transactionService.getTransactions().subscribe({
-      next: (data) => {
-        this.transactions = data;
-        this.loading = false;
-        this.transactionList = true;
-      },
-      error: () => {
-        this.loading = false;
+  try {
+    const data = await firstValueFrom(this.transactionService.getTransactions());
+
+    console.log('API RESPONSE:', data);
+
+    this.transactions = data;
+
+    // table binding
+    this.dataSource.data = data.qr_summary || [];
+
+    setTimeout(() => {
+      if(this.pageTitle=="transactions"){
+      this.dataSource.paginator = this.paginator;
       }
     });
+
+  } catch (err) {
+    console.error('API ERROR:', err);
+    // this.transactions = null;
+  } finally {
+    this.loading = false;
+  }
+   this.cd.detectChanges();
+}
+
+  // filter function
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   logOut() {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-    }
+    localStorage.removeItem('token');
     this.router.navigate(['']);
   }
-
 }

@@ -1,41 +1,61 @@
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  // 🔹 Fake backend login API
-  login(email: string, password: string): Observable<any> {
-    if (email === 'admin@test.com' && password === '1234') {
-      return of({
-        token: 'FAKE_JWT_TOKEN_123456',
-        role: 'ADMIN',
-        user: 'Admin'
-      }).pipe(delay(800));
-    }
+  private baseUrl = 'http://127.0.0.1:8000/auth';
 
-    return of(null).pipe(delay(800));
+  constructor(private http: HttpClient) {}
+
+  // ✅ LOGIN (FIXED: username instead of email)
+  login(username: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/login`, {
+      username: username,
+      password: password
+    }).pipe(
+      tap((res) => {
+        if (res?.access_token) {
+          this.saveToken(res.access_token);
+        }
+      }),
+      catchError(this.handleError)
+    );
   }
 
+  // ✅ SIGNUP
+  signup(data: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/signup`, data)
+      .pipe(catchError(this.handleError));
+  }
+
+  // ✅ TOKEN METHODS
   saveToken(token: string) {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('token', token);
-    }
+    localStorage.setItem('token', token);
   }
 
   getToken(): string | null {
-    if (typeof window === 'undefined') return null;
     return localStorage.getItem('token');
   }
 
   logout() {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('token');
-    }
+    localStorage.removeItem('token');
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  // ✅ ERROR HANDLER
+  private handleError(error: HttpErrorResponse) {
+    let message = 'Something went wrong';
+
+    if (error.error?.detail) {
+      message = error.error.detail;
+    }
+
+    return throwError(() => message);
   }
 }

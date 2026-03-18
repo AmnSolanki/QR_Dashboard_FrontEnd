@@ -11,7 +11,7 @@
     </ul>
   </aside>
 
-  <!-- Main Content -->
+  <!-- Main -->
   <div class="main">
 
     <!-- Navbar -->
@@ -22,57 +22,89 @@
       </div>
     </header>
 
-    <!-- Cards -->
-    <div class="cards" *ngIf="!transactionList">
-      <div class="card">
-        <h4>Total Users</h4>
-        <p>1,250</p>
-      </div>
-      <div class="card">
-        <h4>Total Orders</h4>
-        <p>820</p>
-      </div>
-      <div class="card">
-        <h4>Revenue</h4>
-        <p>₹95,000</p>
-      </div>
-      <div class="card">
-        <h4>Pending</h4>
-        <p>23</p>
-      </div>
-    </div>
+<div *ngIf="!transactionList">
 
-    <!-- Transactions -->
+  <p *ngIf="loading">Loading...</p>
+
+  <p *ngIf="!loading && (!transactions || transactions.total_transactions === 0)">
+    No data available
+  </p>
+
+  <div class="cards" *ngIf="!loading && transactions">
+
+    <mat-card class="card">
+      <h4>Total Transactions</h4>
+      <p>{{ transactions.total_transactions }}</p>
+    </mat-card>
+
+    <mat-card class="card">
+      <h4>Total Revenue</h4>
+      <p>₹{{ transactions.total_amount }}</p>
+    </mat-card>
+
+  </div>
+
+</div>
+
+    <!-- TABLE -->
     <div *ngIf="transactionList" class="table-section">
-      <h4>Recent Orders</h4>
 
-      <p *ngIf="loading">Loading transactions...</p>
+      <h3>QR Summary</h3>
 
-      <table *ngIf="!loading">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>User</th>
-            <th>Status</th>
-            <th>Amount</th>
-            <th>Machine</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let tx of transactions">
-            <td>{{ tx.id }}</td>
-            <td>{{ tx.user }}</td>
-            <td
-              [class.success]="tx.status === 'Completed'"
-              [class.pending]="tx.status === 'Pending'"
-              [class.failed]="tx.status === 'Failed'">
-              {{ tx.status }}
-            </td>
-            <td>₹{{ tx.amount }}</td>
-            <td>{{ tx.machine }}</td>
-          </tr>
-        </tbody>
+      <!--  SEARCH -->
+      <mat-form-field appearance="outline" >
+        <mat-label>Search</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="Search QR ID">
+      </mat-form-field>
+
+      <p *ngIf="loading">Loading...</p>
+
+      <table mat-table [dataSource]="dataSource" *ngIf="!loading">
+
+        <!-- Index -->
+        <ng-container matColumnDef="index">
+          <th mat-header-cell *matHeaderCellDef>#</th>
+          <td mat-cell *matCellDef="let element; let i = index">
+            {{ i + 1 }}
+          </td>
+        </ng-container>
+
+        <!-- QR ID -->
+        <ng-container matColumnDef="qr_id">
+          <th mat-header-cell *matHeaderCellDef>QR ID</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.qr_id }}
+          </td>
+        </ng-container>
+
+        <!-- Amount -->
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let element">
+            ₹{{ element.amount }}
+          </td>
+        </ng-container>
+
+        <!-- Transactions -->
+        <ng-container matColumnDef="transactions">
+          <th mat-header-cell *matHeaderCellDef>Total Txns</th>
+          <td mat-cell *matCellDef="let element">
+            {{ element.transactions }}
+          </td>
+        </ng-container>
+
+        <!-- Rows -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
       </table>
+
+      <!--  PAGINATOR -->
+      <mat-paginator
+        [pageSize]="5"
+        [pageSizeOptions]="[5, 10, 20]">
+      </mat-paginator>
+
     </div>
 
   </div>

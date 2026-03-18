@@ -1,7 +1,9 @@
 export interface Transaction {
   id: number;
-  user: string;
-  status: 'Completed' | 'Pending' | 'Failed';
+  transaction_id: string;
+  qr_id: string;
   amount: number;
-  machine: string;
+  payment_method: string;
+  status: string;
+  created_at: string;
 }

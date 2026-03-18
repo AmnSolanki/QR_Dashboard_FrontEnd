@@ -1,22 +1,22 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../auth-service';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../auth-service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule,CommonModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
 export class LoginComponent {
 
-  email = '';
-  password = '';
-  loading = false;
-  error = '';
+  username: string = '';
+  password: string = '';
+  loading: boolean = false;
+  error: string = '';
 
   constructor(
     private auth: AuthService,
@@ -24,17 +24,25 @@ export class LoginComponent {
   ) {}
 
   login() {
+    if (!this.username || !this.password) {
+      this.error = 'Please enter username and password';
+      return;
+    }
+
     this.loading = true;
     this.error = '';
 
-    this.auth.login(this.email, this.password).subscribe(res => {
-      if (res?.token) {
-        this.auth.saveToken(res.token);
+    this.auth.login(this.username, this.password).subscribe({
+      next: () => {
         this.router.navigate(['/dashboard']);
-      } else {
-        this.error = 'Invalid email or password';
+      },
+      error: (err) => {
+        this.error = err;
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
       }
-      this.loading = false;
     });
   }
 }
